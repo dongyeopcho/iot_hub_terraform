@@ -623,16 +623,19 @@ resource "azurerm_service_plan" "pnp-hub-app-plan" {
 }
 
 # Azure Function App 정의
-resource "azurerm_function_app" "pnp_hub_function_app" {
+resource "azurerm_linux_function_app" "pnp_hub_function_app" {
   name                = "iot-hub-device-to-cloud-func"
   location            = var.resource_group_location
   resource_group_name = azurerm_resource_group.pnp_hub_rg.name
-  app_service_plan_id     = azurerm_service_plan.pnp-hub-app-plan.id
+  service_plan_id     = azurerm_service_plan.pnp-hub-app-plan.id
   storage_account_name       = azurerm_storage_account.pnp_hub_func_adls_d01.name
   storage_account_access_key  = azurerm_storage_account.pnp_hub_func_adls_d01.primary_access_key
 
   # Function App의 구성 설정
   site_config {
+    application_stack {
+      python_version = "3.11"
+    }
     # CORS 설정 추가
     cors {
       allowed_origins = [
@@ -646,18 +649,5 @@ resource "azurerm_function_app" "pnp_hub_function_app" {
     # "FUNCTIONS_WORKER_RUNTIME"      = "python"
     # "APPINSIGHTS_INSTRUMENTATIONKEY" = azurerm_application_insights.pnp_hub_app_insight_c01.instrumentation_key
     # SCM_DO_BUILD_DURING_DEPLOYMENT  = true
-  }
-}
-
-# App Service Plan 정의
-resource "azurerm_app_service_plan" "iot_hub_app_plan" {
-  name                = "iot-hub-app-plan"
-  location            = var.resource_group_location
-  resource_group_name = azurerm_resource_group.pnp_hub_rg.name
-  kind                = "FunctionApp"
-
-  sku {
-    tier = "Dynamic"
-    size = "Y1"
   }
 }
