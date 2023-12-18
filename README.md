@@ -41,4 +41,3 @@
     ``` sh
     terraform apply "main.tfplan"
     ```
-??
