@@ -15,5 +15,5 @@ variable "create_device_module" {
 }
 
 variable "create_infra_module" {
-  default = false
+  default = true
 }
