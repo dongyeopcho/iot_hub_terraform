@@ -79,11 +79,3 @@ resource "azurerm_virtual_network_peering" "peer_spoke_to_hub" {
   use_remote_gateways          = false
   allow_virtual_network_access = true
 }
-
-output "pnp_hub_bastion_pep_subnet_id" {
-  value = azurerm_subnet.pnp_hub_bastion_pep_subnet.id
-}
-
-output "pnp_hub_iot_pep_subnet_id" {
-  value = azurerm_subnet.pnp_hub_iot_pep_subnet.id
-}
