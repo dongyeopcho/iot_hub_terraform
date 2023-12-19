@@ -1,19 +1,34 @@
-module "infra_module" {  
-  source                    = "./modules/infra"       # 모듈 소스 경로
-  resource_group_location   = "Korea Central"         # 모듈에 전달할 리소스 그룹 location
-  count = var.create_infra_module ? 1 : 0
+variable "create_yn" {
+  default = {
+    bastion = true
+    datalake = true
+    function = true
+    iothub = true
+    network = true
+    synapse = true
+  }
 }
 
-module "device_module" {
-  source                    = "./modules/device"      # 모듈 소스 경로
-  deviceId                  = "Device01"              # 모듈에 전달할 리소스 그룹 location
-  count = var.create_device_module ? 1 : 0
+module "bastion_module" {  
+  source                    = "./modules/bation"       # 모듈 소스 경로
+  count = var.create_yn.bastion ? 1 : 0
+  shared_var = var.com_var
 }
 
-variable "create_device_module" {
-  default = false
+module "datalake_module" {  
+  source                    = "./modules/bation"       # 모듈 소스 경로
+  count = var.create_yn.bastion ? 1 : 0
+  shared_var = var.com_var
 }
 
-variable "create_infra_module" {
-  default = true
+# Hub Resource Group 생성 
+resource "azurerm_resource_group" "pnp_hub_rg" {
+  location = var.shared_var.hub_resource_group_name # 리소스 그룹 위치 변수 사용
+  name     = "PNP-HUB-RG" # 리소스 그룹 이름
+}
+
+# Spoke Resource Group 생성
+resource "azurerm_resource_group" "pnp_spoke_rg" {
+  location = var.shared_var.spoke_resource_group_name # 리소스 그룹 위치 변수 사용
+  name     = "PNP-SPOKE-RG" # 리소스 그룹 이름
 }
