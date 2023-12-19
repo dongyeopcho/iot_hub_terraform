@@ -255,11 +255,11 @@ resource "azurerm_storage_data_lake_gen2_filesystem" "synapse_filesystem" {
 }
 
 # Network Rule Deny로 변경
-resource "azurerm_storage_account_network_rules" "pnp_spoke_syn_adls_d01_network_deny" {
-  storage_account_id  = azurerm_storage_account.pnp_spoke_syn_adls_d01.id
-  default_action      = "Deny"
-  depends_on          = [azurerm_storage_data_lake_gen2_filesystem.synapse_filesystem]
-}
+# resource "azurerm_storage_account_network_rules" "pnp_spoke_syn_adls_d01_network_deny" {
+#   storage_account_id  = azurerm_storage_account.pnp_spoke_syn_adls_d01.id
+#   default_action      = "Deny"
+#   depends_on          = [azurerm_storage_data_lake_gen2_filesystem.synapse_filesystem]
+# }
 
 # Synapse Workspace 정의
 resource "azurerm_synapse_workspace" "pnp-spoke-syn-d01" {
@@ -457,7 +457,7 @@ resource "azurerm_storage_account" "pnp_spoke_data_adls_d01" {
   is_hns_enabled = true # account_tier 가 Standard 또는 Premium이며, account_kind가 BlockBlobStorage일 때만 사용 가능
 
   network_rules { # Blob 서비스에 대한 CORS (Cross-Origin Resource Sharing) 규칙을 구성합니다.
-    default_action = "Deny"  # 기본 동작 (Deny)
+    default_action = "Allow"  # 기본 동작 (Deny)
   }
 }
 
@@ -593,7 +593,7 @@ resource "azurerm_private_endpoint" "pnp_spoke_data_st_dfs_pep" {
 # Azure Function Apps 용도의 Storage Account 생성
 resource "azurerm_storage_account" "pnp_hub_func_adls_d01" {
   name                     = "pnphubfuncadlsc01"  # Storage Account 이름
-  resource_group_name      = azurerm_resource_group.pnp_spoke_rg.name  # 리소스 그룹 이름
+  resource_group_name      = azurerm_resource_group.pnp_hub_rg.name  # 리소스 그룹 이름
   location                 = var.resource_group_location  # 리소스 그룹 위치
   account_tier             = "Premium"  # 프리미엄 계층
   account_replication_type = "LRS"  # 로컬 복제  
@@ -624,7 +624,7 @@ resource "azurerm_service_plan" "pnp-hub-app-plan" {
 
 # Azure Function App 정의
 resource "azurerm_linux_function_app" "pnp_hub_function_app" {
-  name                = "iot-hub-device-to-cloud-func"
+  name                = "pnp-hub-device-to-cloud-func"
   location            = var.resource_group_location
   resource_group_name = azurerm_resource_group.pnp_hub_rg.name
   service_plan_id     = azurerm_service_plan.pnp-hub-app-plan.id
