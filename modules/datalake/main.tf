@@ -1,8 +1,10 @@
+variable "com_var" {}
+
 # Data Lake 용도의 Storage Account 생성
 resource "azurerm_storage_account" "pnp_spoke_data_adls_d01" {
   name                     = "pnpspokedataadlsd01"  # Storage Account 이름
   resource_group_name      = azurerm_resource_group.pnp_spoke_rg.name  # 리소스 그룹 이름
-  location                 = var.resource_group_location  # 리소스 그룹 위치
+  location                 = var.hub_resource_group_name  # 리소스 그룹 위치
   account_tier             = "Premium"  # 프리미엄 계층
   account_replication_type = "LRS"  # 로컬 복제  
   account_kind             = "BlockBlobStorage"

@@ -1,34 +1,54 @@
 variable "create_yn" {
   default = {
+    resource_group = true
+    network = true
     bastion = true
     datalake = true
     function = true
     iothub = true
-    network = true
     synapse = true
   }
 }
 
-module "bastion_module" {  
-  source                    = "./modules/bation"       # 모듈 소스 경로
+module "resource_group" {
+  source                    = "./modules/resource_group"       # 모듈 소스 경로
+  count = var.create_yn.network ? 1 : 0
+  com_var = var.com_var  
+}
+
+module "network" {  
+  source                    = "./modules/network"       # 모듈 소스 경로
+  count = var.create_yn.network ? 1 : 0
+  com_var = var.com_var
+  depends_on = [module.resource_group]
+}
+
+module "bastion" {
+  source = "./modules/bastion"
   count = var.create_yn.bastion ? 1 : 0
-  shared_var = var.com_var
+  bastion_subnet_id = module.network[0].pnp_hub_bastion_pep_subnet_id
+  com_var = var.com_var
+  depends_on = [module.network]
 }
 
 module "datalake_module" {  
-  source                    = "./modules/bation"       # 모듈 소스 경로
-  count = var.create_yn.bastion ? 1 : 0
-  shared_var = var.com_var
+  source                    = "./modules/datalake"       # 모듈 소스 경로
+  count = var.create_yn.datalake ? 1 : 0
+  com_var = var.com_var
+  depends_on = [module.network]
 }
 
-# Hub Resource Group 생성 
-resource "azurerm_resource_group" "pnp_hub_rg" {
-  location = var.shared_var.hub_resource_group_name # 리소스 그룹 위치 변수 사용
-  name     = "PNP-HUB-RG" # 리소스 그룹 이름
-}
+# module "function_module" {  
+#   source                    = "./modules/function"       # 모듈 소스 경로
+#   count = var.create_yn.function ? 1 : 0
+# }
 
-# Spoke Resource Group 생성
-resource "azurerm_resource_group" "pnp_spoke_rg" {
-  location = var.shared_var.spoke_resource_group_name # 리소스 그룹 위치 변수 사용
-  name     = "PNP-SPOKE-RG" # 리소스 그룹 이름
-}
+# module "iothub_module" {  
+#   source                    = "./modules/iothub"       # 모듈 소스 경로
+#   count = var.create_yn.iothub ? 1 : 0
+# }
+
+# module "synapse_module" {  
+#   source                    = "./modules/synapse"       # 모듈 소스 경로
+#   count = var.create_yn.synapse ? 1 : 0
+# }
