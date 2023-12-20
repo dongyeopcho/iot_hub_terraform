@@ -19,13 +19,6 @@ resource "azurerm_storage_account" "pnp_spoke_data_adls_d01" {
   
 }
 
-resource "azurerm_storage_share" "test" {
-  name                 = "testsharezh3hy"
-  storage_account_name = azurerm_storage_account.pnp_spoke_data_adls_d01.name
-  quota                = 5
-  access_tier          = "TransactionOptimized"
-}
-
 # Private DNS Zone 정의
 resource "azurerm_private_dns_zone" "pnp_spoke_adls_blob_dns_zone" {
   name                = "privatelink.blob.core.windows.net"  # Private DNS Zone 이름

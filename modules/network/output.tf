@@ -19,3 +19,11 @@ output "pnp_hub_iot_pep_subnet_id" {
 output "pnp_spoke_data_st_pep_subnet_id" {
   value = azurerm_subnet.pnp_spoke_data_st_pep_subnet.id
 }
+
+output "pnp_spoke_syn_pep_subnet_id" {
+  value = azurerm_subnet.pnp_spoke_syn_pep_subnet.id
+}
+
+output "pnp_hub_plh_pep_subnet_id" {
+  value = azurerm_subnet.pnp_hub_plh_pep_subnet.id
+}
