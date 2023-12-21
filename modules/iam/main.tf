@@ -3,7 +3,7 @@ variable "subscription_id" {}
 resource "azurerm_role_definition" "test_role" {
   name        = "Test_Role"
   description = "Custom role description"
-  scope       = "/subscriptions/your_subscription_id"
+  scope       = "/subscriptions/${var.subscription_id}"
 
   permissions {
     actions = [
@@ -16,6 +16,5 @@ resource "azurerm_role_definition" "test_role" {
 
   assignable_scopes = [
     "/subscriptions/${var.subscription_id}"
-    # Add other scopes as needed
-  }
+  ]
 }
