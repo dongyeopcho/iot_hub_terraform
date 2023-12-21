@@ -10,6 +10,10 @@ variable "create_yn" {
   }
 }
 
+variable "subscription_id" {
+  description = "Azure subscription ID"
+}
+
 module "resource_group" {
   source                    = "./modules/resource_group"       # 모듈 소스 경로
   count = var.create_yn.network ? 1 : 0
@@ -63,6 +67,13 @@ module "function_module" {
 
   com_var = var.com_var
   depends_on = [module.network]
+}
+
+module "iam_module" {  
+  source                    = "./modules/iam"       # 모듈 소스 경로
+  count = var.create_yn.function ? 1 : 0
+
+  subscription_id = var.subscription_id
 }
 
 module "datalake_module" {  

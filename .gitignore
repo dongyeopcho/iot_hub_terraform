@@ -10,6 +10,7 @@
 *.hcl
 *.backup
 *.tfstate
+*.tfvars
 
 # 특정 디렉토리의 특정 파일 무시하지 않음
 # !important_directory/important_file.txt

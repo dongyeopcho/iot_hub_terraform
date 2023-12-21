@@ -56,8 +56,8 @@ resource "azurerm_linux_function_app" "pnp_hub_function_app" {
   
   # Function App의 환경 변수 및 설정
   app_settings = {
-    # "FUNCTIONS_WORKER_RUNTIME"      = "python"
-    # "APPINSIGHTS_INSTRUMENTATIONKEY" = azurerm_application_insights.pnp_hub_app_insight_c01.instrumentation_key
-    # SCM_DO_BUILD_DURING_DEPLOYMENT  = true
+    "FUNCTIONS_WORKER_RUNTIME"      = "python"
+    "APPINSIGHTS_INSTRUMENTATIONKEY" = azurerm_application_insights.pnp_hub_app_insight_c01.instrumentation_key
+    SCM_DO_BUILD_DURING_DEPLOYMENT  = true
   }
 }
