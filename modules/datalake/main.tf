@@ -16,7 +16,11 @@ resource "azurerm_storage_account" "pnp_spoke_data_adls_d01" {
   network_rules { # Blob 서비스에 대한 CORS (Cross-Origin Resource Sharing) 규칙을 구성합니다.
     default_action = "Allow"  # 기본 동작 (Deny)
   }
-  
+}
+
+resource "azurerm_storage_data_lake_gen2_filesystem" "datalake_filesystem" {
+  name               = "iotraw"
+  storage_account_id = azurerm_storage_account.pnp_spoke_data_adls_d01.id
 }
 
 # Private DNS Zone 정의

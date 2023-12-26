@@ -10,10 +10,6 @@ variable "create_yn" {
   }
 }
 
-variable "subscription_id" {
-  description = "Azure subscription ID"
-}
-
 module "resource_group" {
   source                    = "./modules/resource_group"       # 모듈 소스 경로
   count = var.create_yn.network ? 1 : 0
@@ -37,6 +33,18 @@ module "bastion" {
   depends_on = [module.network]
 }
 
+module "datalake" {  
+  source                    = "./modules/datalake"       # 모듈 소스 경로
+  count = var.create_yn.datalake ? 1 : 0
+
+  com_var = var.com_var
+  hub_vnet_id = module.network[0].hub_vnet_id
+  spoke_vnet_id = module.network[0].spoke_vnet_id
+  pnp_spoke_data_st_pep_subnet_id = module.network[0].pnp_spoke_data_st_pep_subnet_id
+
+  depends_on = [module.network]
+}
+
 module "iothub_module" {  
   source                    = "./modules/iothub"       # 모듈 소스 경로
   count = var.create_yn.iothub ? 1 : 0
@@ -44,8 +52,11 @@ module "iothub_module" {
   com_var = var.com_var
   hub_vnet_id = module.network[0].hub_vnet_id
   pnp_hub_iot_pep_subnet_id = module.network[0].pnp_hub_iot_pep_subnet_id
+  azurerm_storage_account_connection_string = module.datalake[0].azurerm_storage_account_connection_string
+  azurerm_storage_account_name = module.datalake[0].azurerm_storage_account_name
+  azurerm_storage_account_id = module.datalake[0].azurerm_storage_account_id
 
-  depends_on = [module.network]
+  depends_on = [module.network, module.datalake]
 }
 
 module "synapse_module" {  
@@ -76,15 +87,4 @@ module "iam_module" {
   subscription_id = var.subscription_id
 }
 
-module "datalake_module" {  
-  source                    = "./modules/datalake"       # 모듈 소스 경로
-  count = var.create_yn.datalake ? 1 : 0
-
-  com_var = var.com_var
-  hub_vnet_id = module.network[0].hub_vnet_id
-  spoke_vnet_id = module.network[0].spoke_vnet_id
-  pnp_spoke_data_st_pep_subnet_id = module.network[0].pnp_spoke_data_st_pep_subnet_id
-
-  depends_on = [module.network]
-}
 
