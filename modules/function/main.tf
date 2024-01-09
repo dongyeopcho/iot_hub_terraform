@@ -2,7 +2,7 @@ variable "com_var" {}
 
 # Azure Function Apps 용도의 Storage Account 생성
 resource "azurerm_storage_account" "pnp_hub_func_adls_d01" {
-  name                     = "pnphubfuncadlsc01"  # Storage Account 이름
+  name                     = "${var.conv.project_name}${var.conv.env}hubfuncadls01"  # Storage Account 이름
   resource_group_name      = var.com_var.hub_resource_group_name  # 리소스 그룹 이름
   location                 = var.com_var.location  # 리소스 그룹 위치
   account_tier             = "Premium"  # 프리미엄 계층
@@ -17,7 +17,7 @@ resource "azurerm_storage_account" "pnp_hub_func_adls_d01" {
 
 # Application Insights 리소스 정의
 resource "azurerm_application_insights" "pnp_hub_app_insight_c01" {
-  name                = "PNP-HUB-APP-INSIGHT-C01"
+  name                = "${var.conv.project_name}-${var.conv.env}-hub-app-insight-01"
   location            = var.com_var.location
   resource_group_name = var.com_var.hub_resource_group_name
   application_type    = "web"
@@ -25,7 +25,7 @@ resource "azurerm_application_insights" "pnp_hub_app_insight_c01" {
 
 # App Service Plan
 resource "azurerm_service_plan" "pnp-hub-app-plan" {
-  name                = "pnp-hub-app-plan"
+  name                = "${var.conv.project_name}-hub-app-plan"
   location            = var.com_var.location
   resource_group_name = var.com_var.hub_resource_group_name
   os_type             = "Linux"
@@ -34,7 +34,7 @@ resource "azurerm_service_plan" "pnp-hub-app-plan" {
 
 # Azure Function App 정의
 resource "azurerm_linux_function_app" "pnp_hub_function_app" {
-  name                = "pnp-hub-device-to-cloud-func"
+  name                = "${var.conv.project_name}-hub-device-to-cloud-func"
   location            = var.com_var.location
   resource_group_name = var.com_var.hub_resource_group_name
   service_plan_id     = azurerm_service_plan.pnp-hub-app-plan.id

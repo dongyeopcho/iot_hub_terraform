@@ -230,3 +230,11 @@ resource "azurerm_private_endpoint" "pnp_hub_plh_web_pep" {
   }
   
 }
+
+# Dedicated SQL Pool 생성
+resource "azurerm_synapse_sql_pool" "dedicated_sql_pool" {
+  name                 = "pnpdedicatedsqlpool"
+  synapse_workspace_id = azurerm_synapse_workspace.pnp-spoke-syn-d01.id
+  sku_name             = "DW100c"
+  create_mode          = "Default"
+}

@@ -7,7 +7,7 @@ variable "azurerm_storage_account_id" {}
 
 # Azure IoT Hub 리소스 생성
 resource "azurerm_iothub" "pnp_data_iot_c01" {
-  name                = "PNP-DATA-IOT-C01" # IoT Hub 이름
+  name                = "${var.conv.project_name}-${var.conv.env}-data-iot-01" # IoT Hub 이름
   resource_group_name = var.com_var.hub_resource_group_name # IoT Hub가 속한 리소스 그룹 이름
   location            = var.com_var.location # IoT Hub 위치
 
@@ -58,7 +58,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "iothub_servicebus_priv
 
 # IoT Hub Private Endpoint 생성
 resource "azurerm_private_endpoint" "pnp_data_iot_c01_pep" {
-  name                = "PNP-HUB-IOT-IOTHUB-PEP"               # Private Endpoint 이름
+  name                = "${var.conv.project_name}-hub-iot-iothub-pep"               # Private Endpoint 이름
   resource_group_name = var.com_var.hub_resource_group_name    # Private Endpoint가 속한 리소스 그룹 이름
   location            = var.com_var.location                   # Private Endpoint 위치
   subnet_id           = var.pnp_hub_iot_pep_subnet_id          # Private Endpoint를 할당할 서브넷 ID

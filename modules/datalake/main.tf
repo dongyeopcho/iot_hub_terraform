@@ -5,7 +5,7 @@ variable "pnp_spoke_data_st_pep_subnet_id" {}
 
 # Data Lake 용도의 Storage Account 생성
 resource "azurerm_storage_account" "pnp_spoke_data_adls_d01" {
-  name                     = "pnpspokedataadlsd01"  # Storage Account 이름
+  name                     = "${var.conv.project_name}${var.conv.location_name}${var.conv.env}stdata01" # Storage Account 이름
   resource_group_name      = var.com_var.spoke_resource_group_name  # 리소스 그룹 이름
   location                 = var.com_var.location  # 리소스 그룹 위치
   account_tier             = "Premium"  # 프리미엄 계층
@@ -47,7 +47,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "pnp_spoke_adls_blob_dn
 
 # Blob Storage Private Endpoint 생성
 resource "azurerm_private_endpoint" "pnp_spoke_data_st_blob_pep" {
-  name                = "PNP-SPOKE-DATA-ST-BLOB-PEP"                   # Private Endpoint 이름
+  name                = "${var.conv.project_name}-spoke-data-st-blob-pep"                   # Private Endpoint 이름
   resource_group_name = var.com_var.spoke_resource_group_name   # Private Endpoint가 속한 리소스 그룹 이름
   location            = var.com_var.location  # Private Endpoint 위치
   subnet_id           = var.pnp_spoke_data_st_pep_subnet_id             # Private Endpoint를 할당할 서브넷 ID
@@ -90,7 +90,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "pnp_spoke_adls_web_dns
 
 # Blob Storage Private Endpoint 생성
 resource "azurerm_private_endpoint" "pnp_spoke_data_st_web_pep" {
-  name                = "PNP-SPOKE-DATA-ST-WEB-PEP"                   # Private Endpoint 이름
+  name                = "${var.conv.project_name}-spoke-data-st-web-pep" # Private Endpoint 이름
   resource_group_name = var.com_var.spoke_resource_group_name   # Private Endpoint가 속한 리소스 그룹 이름
   location            = var.com_var.location  # Private Endpoint 위치
   subnet_id           = var.pnp_spoke_data_st_pep_subnet_id             # Private Endpoint를 할당할 서브넷 ID
@@ -133,7 +133,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "pnp_spoke_adls_dfs_dns
 
 # Blob Storage Private Endpoint 생성
 resource "azurerm_private_endpoint" "pnp_spoke_data_st_dfs_pep" {
-  name                = "PNP-SPOKE-DATA-ST-DFS-PEP"                   # Private Endpoint 이름
+  name                = "${var.conv.project_name}-spoke-data-st-dfs-pep"                   # Private Endpoint 이름
   resource_group_name = var.com_var.spoke_resource_group_name   # Private Endpoint가 속한 리소스 그룹 이름
   location            = var.com_var.location  # Private Endpoint 위치
   subnet_id           = var.pnp_spoke_data_st_pep_subnet_id             # Private Endpoint를 할당할 서브넷 ID
