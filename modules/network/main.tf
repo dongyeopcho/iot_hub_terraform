@@ -1,4 +1,5 @@
 variable "com_var" {}
+variable "conv" {}
 
 # Hub Vnet 및 Subnet 생성
 resource "azurerm_virtual_network" "pnp_hub_vnet" {
@@ -9,7 +10,7 @@ resource "azurerm_virtual_network" "pnp_hub_vnet" {
 }
 
 resource "azurerm_subnet" "pnp_hub_bastion_pep_subnet" {
-  name                 = "PNP-HUB-BASTION-PEP-SUBNET" # 서브넷 이름
+  name                 = "${var.conv.project_name}-hub-bastion-pep-subnet" # 서브넷 이름
   resource_group_name  = var.com_var.hub_resource_group_name # 서브넷이 속한 리소스 그룹 이름
   virtual_network_name = var.com_var.hub_vnet_name # 서브넷이 속한 가상 네트워크 이름
   address_prefixes     = ["10.0.1.0/24"] # 서브넷 주소 공간
@@ -17,7 +18,7 @@ resource "azurerm_subnet" "pnp_hub_bastion_pep_subnet" {
 }
 
 resource "azurerm_subnet" "pnp_hub_iot_pep_subnet" {
-  name                 = "PNP-HUB-IOT-PEP-SUBNET" # 서브넷 이름
+  name                 = "${var.conv.project_name}-hub-iot-pep-subnet" # 서브넷 이름
   resource_group_name  = var.com_var.hub_resource_group_name # 서브넷이 속한 리소스 그룹 이름
   virtual_network_name = var.com_var.hub_vnet_name # 서브넷이 속한 가상 네트워크 이름
   address_prefixes     = ["10.0.2.0/24"] # 서브넷 주소 공간
@@ -25,7 +26,7 @@ resource "azurerm_subnet" "pnp_hub_iot_pep_subnet" {
 }
 
 resource "azurerm_subnet" "pnp_hub_plh_pep_subnet" {
-  name                 = "PNP-HUB-PLH-PEP-SUBNET" # 서브넷 이름
+  name                 = "${var.conv.project_name}-hub-plh-pep-subnet" # 서브넷 이름
   resource_group_name  = var.com_var.hub_resource_group_name # 서브넷이 속한 리소스 그룹 이름
   virtual_network_name = var.com_var.hub_vnet_name # 서브넷이 속한 가상 네트워크 이름
   address_prefixes     = ["10.0.3.0/24"] # 서브넷 주소 공간
@@ -41,7 +42,7 @@ resource "azurerm_virtual_network" "pnp_spoke_vnet" {
 }
 
 resource "azurerm_subnet" "pnp_spoke_syn_pep_subnet" {
-  name                 = "PNP-SPOKE-SYN-PEP-SUBNET" # 서브넷 이름
+  name                 = "${var.conv.project_name}-spoke-syn-pep-subnet" # 서브넷 이름
   resource_group_name  = var.com_var.spoke_resource_group_name # 서브넷이 속한 리소스 그룹 이름
   virtual_network_name = var.com_var.spoke_vnet_name # 서브넷이 속한 가상 네트워크 이름
   address_prefixes     = ["10.1.1.0/24"] # 서브넷 주소 공간
@@ -49,7 +50,7 @@ resource "azurerm_subnet" "pnp_spoke_syn_pep_subnet" {
 }
 
 resource "azurerm_subnet" "pnp_spoke_data_st_pep_subnet" {
-  name                 = "PNP-SPOKE-DATA-ST-PEP-SUBNET" # 서브넷 이름
+  name                 = "${var.conv.project_name}-spoke-data-st-pep-subnet" # 서브넷 이름
   resource_group_name  = var.com_var.spoke_resource_group_name # 서브넷이 속한 리소스 그룹 이름
   virtual_network_name = var.com_var.spoke_vnet_name # 서브넷이 속한 가상 네트워크 이름
   address_prefixes     = ["10.1.2.0/24"] # 서브넷 주소 공간

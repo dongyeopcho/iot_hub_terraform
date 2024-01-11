@@ -1,4 +1,5 @@
 variable "com_var" {}
+variable "conv" {}
 variable "hub_vnet_id" {}
 variable "spoke_vnet_id" {}
 variable "pnp_spoke_syn_pep_subnet_id" {}
@@ -6,7 +7,7 @@ variable "pnp_hub_plh_pep_subnet_id" {}
 
 # Azure Synapse 용도의 Storage Account 생성
 resource "azurerm_storage_account" "pnp_spoke_syn_adls_d01" {
-  name                     = "pnpspokesynadlsd01"  # Storage Account 이름
+  name                     = "${var.conv.project_name}${var.conv.env}spokesynadls01"  # Storage Account 이름
   resource_group_name      = var.com_var.spoke_resource_group_name  # 리소스 그룹 이름
   location                 = var.com_var.location  # 리소스 그룹 위치
   account_tier             = "Premium"  # 프리미엄 계층
@@ -48,7 +49,7 @@ resource "azurerm_storage_data_lake_gen2_filesystem" "synapse_filesystem" {
 
 # Synapse Workspace 정의
 resource "azurerm_synapse_workspace" "pnp-spoke-syn-d01" {
-  name                = "pnp-spoke-syn-d01"  # Synapse Workspace 이름
+  name                = "${var.conv.project_name}-${var.conv.env}-spoke-syn-01"  # Synapse Workspace 이름
   resource_group_name = var.com_var.spoke_resource_group_name  # 리소스 그룹 이름
   location            = var.com_var.location  # 리소스 그룹 위치
   storage_data_lake_gen2_filesystem_id = azurerm_storage_data_lake_gen2_filesystem.synapse_filesystem.id # 연결할 ADLS 스토리지 계정
@@ -97,7 +98,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "pnp_spoke_syn_dev_dns_
 
 # Blob Storage Private Endpoint 생성
 resource "azurerm_private_endpoint" "pnp_spoke_syn_dev_pep" {
-  name                = "PNP-SPOKE-SYN-DEV-PEP"                   # Private Endpoint 이름
+  name                = "${var.conv.project_name}-spoke-syn-dev-pep"                   # Private Endpoint 이름
   resource_group_name = var.com_var.spoke_resource_group_name   # Private Endpoint가 속한 리소스 그룹 이름
   location            = var.com_var.location  # Private Endpoint 위치
   subnet_id           = var.pnp_spoke_syn_pep_subnet_id             # Private Endpoint를 할당할 서브넷 ID
@@ -140,7 +141,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "pnp_spoke_syn_sql_dns_
 
 # Synapse SQL Private Endpoint 생성
 resource "azurerm_private_endpoint" "pnp_spoke_syn_sql_pep" {
-  name                = "PNP-SPOKE-SYN-SQL-PEP"                   # Private Endpoint 이름
+  name                = "${var.conv.project_name}-spoke-syn-sql-pep"                   # Private Endpoint 이름
   resource_group_name = var.com_var.spoke_resource_group_name   # Private Endpoint가 속한 리소스 그룹 이름
   location            = var.com_var.location  # Private Endpoint 위치
   subnet_id           = var.pnp_spoke_syn_pep_subnet_id             # Private Endpoint를 할당할 서브넷 ID
@@ -161,7 +162,7 @@ resource "azurerm_private_endpoint" "pnp_spoke_syn_sql_pep" {
 
 # Synapse SQL On Demand Private Endpoint 생성
 resource "azurerm_private_endpoint" "pnp_spoke_syn_ondemand_pep" {
-  name                = "PNP-SPOKE-SYN-ONDEMAND-PEP"                   # Private Endpoint 이름
+  name                = "${var.conv.project_name}-spoke-syn-ondemand-pep"                   # Private Endpoint 이름
   resource_group_name = var.com_var.spoke_resource_group_name   # Private Endpoint가 속한 리소스 그룹 이름
   location            = var.com_var.location  # Private Endpoint 위치
   subnet_id           = var.pnp_spoke_syn_pep_subnet_id             # Private Endpoint를 할당할 서브넷 ID
@@ -211,7 +212,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "pnp_hub_plh_c01_privat
 
 # Synapse Private Link Web Private Endpoint 생성
 resource "azurerm_private_endpoint" "pnp_hub_plh_web_pep" {
-  name                = "PNP-HUB-PLH-WEB-PEP"                   # Private Endpoint 이름
+  name                = "${var.conv.project_name}-hub-plh-web-pep"                   # Private Endpoint 이름
   resource_group_name = var.com_var.hub_resource_group_name   # Private Endpoint가 속한 리소스 그룹 이름
   location            = var.com_var.location  # Private Endpoint 위치
   subnet_id           = var.pnp_hub_plh_pep_subnet_id             # Private Endpoint를 할당할 서브넷 ID
@@ -233,7 +234,7 @@ resource "azurerm_private_endpoint" "pnp_hub_plh_web_pep" {
 
 # Dedicated SQL Pool 생성
 resource "azurerm_synapse_sql_pool" "dedicated_sql_pool" {
-  name                 = "pnpdedicatedsqlpool"
+  name                 = "${var.conv.project_name}dedicatedsqlpool"
   synapse_workspace_id = azurerm_synapse_workspace.pnp-spoke-syn-d01.id
   sku_name             = "DW100c"
   create_mode          = "Default"

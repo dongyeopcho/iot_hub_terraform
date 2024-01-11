@@ -1,4 +1,5 @@
 variable "com_var" {}
+variable "conv" {}
 variable "hub_vnet_id" {}
 variable "spoke_vnet_id" {}
 variable "pnp_spoke_data_st_pep_subnet_id" {}

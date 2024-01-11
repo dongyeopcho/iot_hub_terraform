@@ -1,4 +1,5 @@
 variable "com_var" {}
+variable "conv" {}
 variable "hub_vnet_id" {}
 variable "pnp_hub_iot_pep_subnet_id" {}
 variable "azurerm_storage_account_connection_string" {}

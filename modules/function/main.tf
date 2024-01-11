@@ -1,4 +1,5 @@
 variable "com_var" {}
+variable "conv" {}
 
 # Azure Function Apps 용도의 Storage Account 생성
 resource "azurerm_storage_account" "pnp_hub_func_adls_d01" {
