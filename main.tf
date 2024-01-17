@@ -83,6 +83,14 @@ module "databricks_module" {
   
   com_var = var.com_var
   conv = var.conv
+  hub_vnet_id = module.network[0].hub_vnet_id
+  spoke_vnet_id = module.network[0].spoke_vnet_id
+  pnp_hub_adb_auth_public_nsg_id = module.network[0].pnp_hub_adb_auth_public_nsg_id
+  pnp_hub_adb_auth_private_nsg_id = module.network[0].pnp_hub_adb_auth_private_nsg_id
+  pnp_spoke_adb_backend_public_nsg_id = module.network[0].pnp_spoke_adb_backend_public_nsg_id
+  pnp_spoke_adb_backend_private_nsg_id = module.network[0].pnp_spoke_adb_backend_private_nsg_id
+  pnp_hub_adb_pep_subnet_id = module.network[0].pnp_hub_adb_pep_subnet_id
+  pnp_spoke_adb_pep_subnet_id = module.network[0].pnp_spoke_adb_pep_subnet_id
   
   depends_on = [module.network]
 }
