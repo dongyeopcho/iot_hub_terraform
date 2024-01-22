@@ -36,8 +36,8 @@ output "pnp_hub_plh_pep_subnet_id" {
 #   value = azurerm_network_security_group.pnp_hub_adb_auth_private_nsg.id
 # }
 
-output "pnp_hub_adb_auth_private_nsg_id" {
-  value = azurerm_network_security_group.pnp_hub_adb_auth_private_nsg.id
+output "pnp_hub_adb_auth_nsg_id" {
+  value = azurerm_network_security_group.pnp_hub_adb_auth_nsg.id
 }
 
 # output "pnp_spoke_adb_backend_public_nsg_id" {
@@ -48,8 +48,8 @@ output "pnp_hub_adb_auth_private_nsg_id" {
 #   value = azurerm_network_security_group.pnp_spoke_adb_backend_private_nsg.id
 # }
 
-output "pnp_hub_adb_auth_private_nsg_id" {
-  value = azurerm_network_security_group.pnp_hub_adb_auth_private_nsg.id
+output "pnp_spoke_adb_backend_nsg_id" {
+  value = azurerm_network_security_group.pnp_spoke_adb_backend_nsg.id
 }
 
 output "pnp_hub_adb_pep_subnet_id" {

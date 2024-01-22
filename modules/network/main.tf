@@ -91,7 +91,7 @@ resource "azurerm_subnet" "pnp_hub_adb_pep_subnet" {
 # }
 
 # Azure Auth 용도의 Network Security Group 생성
-resource "azurerm_network_security_group" "auth_nsg" {
+resource "azurerm_network_security_group" "pnp_hub_adb_auth_nsg" {
   name = "pnp-hub-adb-auth-nsg"
   location = var.com_var.location
   resource_group_name = var.com_var.hub_resource_group_name
@@ -100,14 +100,14 @@ resource "azurerm_network_security_group" "auth_nsg" {
 # Azure Subnet에 NSG 할당
 resource "azurerm_subnet_network_security_group_association" "pnp_hub_adb_auth_public_subnet_nsg" {
   subnet_id = azurerm_subnet.pnp_hub_adb_auth_public_subnet.id
-  network_security_group_id = azurerm_network_security_group.pnp_hub_adb_auth_public_nsg.id
+  network_security_group_id = azurerm_network_security_group.pnp_hub_adb_auth_nsg.id
 
 }
 
 # Azure Subnet에 NSG 할당
 resource "azurerm_subnet_network_security_group_association" "pnp_hub_adb_auth_private_subnet_nsg" {
   subnet_id = azurerm_subnet.pnp_hub_adb_auth_private_subnet.id
-  network_security_group_id = azurerm_network_security_group.pnp_hub_adb_auth_private_nsg.id
+  network_security_group_id = azurerm_network_security_group.pnp_hub_adb_auth_nsg.id
 }
 
 # Spoke Vnet 및 Subnet 생성
@@ -201,13 +201,13 @@ resource "azurerm_network_security_group" "pnp_spoke_adb_backend_nsg" {
 # Azure Subnet에 NSG 할당
 resource "azurerm_subnet_network_security_group_association" "pnp_spoke_adb_backend_public_subnet_nsg" {
   subnet_id = azurerm_subnet.pnp_spoke_adb_backend_public_subnet.id
-  network_security_group_id = azurerm_network_security_group.pnp_spoke_adb_backend_public_nsg.id
+  network_security_group_id = azurerm_network_security_group.pnp_spoke_adb_backend_nsg.id
 }
 
 # Azure Subnet에 NSG 할당
 resource "azurerm_subnet_network_security_group_association" "pnp_spoke_adb_backend_private_subnet_nsg" {
   subnet_id = azurerm_subnet.pnp_spoke_adb_backend_private_subnet.id
-  network_security_group_id = azurerm_network_security_group.pnp_spoke_adb_backend_private_nsg.id
+  network_security_group_id = azurerm_network_security_group.pnp_spoke_adb_backend_nsg.id
 }
 
 # 가상 네트워크 피어링 설정 (Hub Vnet에서 Spoke Vnet으로)
