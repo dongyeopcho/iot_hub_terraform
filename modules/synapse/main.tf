@@ -1,12 +1,6 @@
 variable "com_var" {}
-
 variable "resource_group" {}
 variable "network" {}
-
-# variable "hub_vnet_id" {}
-# variable "spoke_vnet_id" {}
-# variable "spoke_syn_pep_subnet_id" {}
-# variable "hub_plh_pep_subnet_id" {}
 
 # Azure Synapse 용도의 Storage Account 생성
 resource "azurerm_storage_account" "spoke_syn_adls_d01" {
@@ -22,20 +16,6 @@ resource "azurerm_storage_account" "spoke_syn_adls_d01" {
     default_action = "Allow"  # 기본 동작 (Deny)
   }
 }
-
-# Azure AD 사용자의 Object ID 또는 서비스 주체의 Object ID를 지정
-# variable "user_object_id" {
-#   description = "권한 부여할 계정 Object Id"
-#   type = string
-#   default = "derik@megazone.com"
-# }
-
-# Azure 리소스 그룹에 리소스 관리자 역할 부여
-# resource "azurerm_role_assignment" "example" {
-#   principal_id   = var.user_object_id
-#   role_definition_name = "Blob Contributor"  # 역할 정의 (Owner, Contributor, Reader 등)
-#   scope          = azurerm_storage_account.spoke_syn_adls_d01.primary_blob_connection_string
-# }
 
 # Azure Storage에 대한 Container(filesystem) 생성
 resource "azurerm_storage_data_lake_gen2_filesystem" "synapse_filesystem" {
@@ -68,37 +48,6 @@ resource "azurerm_synapse_workspace" "pnp-spoke-syn-d01" {
   }
 }
 
-# Synapse SQL Pool 정의
-# resource "azurerm_synapse_sql_pool" "dedicated01" {
-#   name                = "dedicated01"  # SQL Pool 이름
-#   workspace_name      = azurerm_synapse_workspace.pnp-spoke-syn-d01.name  # Synapse Workspace 이름
-#   resource_group_name = azurerm_resource_group.spoke_rg.name  # 리소스 그룹 이름
-#   performance_level   = "DW100c"  # 성능 레벨
-#   collation           = "SQL_Latin1_General_CP1_CI_AS"  # Collation 설정
-# }
-
-# Private DNS Zone 정의
-resource "azurerm_private_dns_zone" "spoke_syn_dev_dns_zone" {
-  name                = "privatelink.dev.azuresynapse.net"  # Private DNS Zone 이름
-  resource_group_name = var.resource_group.spoke_rg.name  # 리소스 그룹 이름
-}
-
-# Private DNS Zone과 가상 네트워크 링크 설정
-resource "azurerm_private_dns_zone_virtual_network_link" "spoke_syn_dev_dns_zone_link_hub" {
-  name                  = "link_hub"                        # 링크 이름
-  resource_group_name   = var.resource_group.spoke_rg.name   # 리소스 그룹 이름
-  private_dns_zone_name = azurerm_private_dns_zone.spoke_syn_dev_dns_zone.name  # Private DNS Zone 이름
-  virtual_network_id    = var.network.hub_vnet.id # 가상 네트워크 ID
-}
-
-# Private DNS Zone과 가상 네트워크 링크 설정
-resource "azurerm_private_dns_zone_virtual_network_link" "spoke_syn_dev_dns_zone_link_spoke" {
-  name                  = "link_spoke"                        # 링크 이름
-  resource_group_name   = var.resource_group.spoke_rg.name   # 리소스 그룹 이름
-  private_dns_zone_name = azurerm_private_dns_zone.spoke_syn_dev_dns_zone.name  # Private DNS Zone 이름
-  virtual_network_id    = var.network.spoke_vnet.id # 가상 네트워크 ID
-}
-
 # Blob Storage Private Endpoint 생성
 resource "azurerm_private_endpoint" "spoke_syn_dev_pep" {
   name                = "${var.com_var.conf.project_name}-spoke-syn-dev-pep"                   # Private Endpoint 이름
@@ -116,30 +65,8 @@ resource "azurerm_private_endpoint" "spoke_syn_dev_pep" {
 
   private_dns_zone_group {
     name                           = "default"  # Private DNS Zone 연결 이름
-    private_dns_zone_ids            = [azurerm_private_dns_zone.spoke_syn_dev_dns_zone.id]  # Private DNS Zone ID
+    private_dns_zone_ids            = [var.network.private_dns.syn_dev.id]  # Private DNS Zone ID
   }
-}
-
-# Private DNS Zone 정의
-resource "azurerm_private_dns_zone" "spoke_syn_sql_dns_zone" {
-  name                = "privatelink.sql.azuresynapse.net"  # Private DNS Zone 이름
-  resource_group_name = var.resource_group.spoke_rg.name  # 리소스 그룹 이름
-}
-
-# Private DNS Zone과 가상 네트워크 링크 설정
-resource "azurerm_private_dns_zone_virtual_network_link" "spoke_syn_sql_dns_zone_link_hub" {
-  name                  = "link_hub"                        # 링크 이름
-  resource_group_name   = var.resource_group.spoke_rg.name   # 리소스 그룹 이름
-  private_dns_zone_name = azurerm_private_dns_zone.spoke_syn_sql_dns_zone.name  # Private DNS Zone 이름
-  virtual_network_id    = var.network.hub_vnet.id # 가상 네트워크 ID
-}
-
-# Private DNS Zone과 가상 네트워크 링크 설정
-resource "azurerm_private_dns_zone_virtual_network_link" "spoke_syn_sql_dns_zone_link_spoke" {
-  name                  = "link_spoke"                        # 링크 이름
-  resource_group_name   = var.resource_group.spoke_rg.name   # 리소스 그룹 이름
-  private_dns_zone_name = azurerm_private_dns_zone.spoke_syn_sql_dns_zone.name  # Private DNS Zone 이름
-  virtual_network_id    = var.network.spoke_vnet.id # 가상 네트워크 ID
 }
 
 # Synapse SQL Private Endpoint 생성
@@ -159,7 +86,7 @@ resource "azurerm_private_endpoint" "spoke_syn_sql_pep" {
 
   private_dns_zone_group {
     name                           = "default"  # Private DNS Zone 연결 이름
-    private_dns_zone_ids            = [azurerm_private_dns_zone.spoke_syn_sql_dns_zone.id]  # Private DNS Zone ID
+    private_dns_zone_ids            = [var.network.private_dns.syn_sql.id]  # Private DNS Zone ID
   }
 }
 
@@ -180,7 +107,7 @@ resource "azurerm_private_endpoint" "spoke_syn_ondemand_pep" {
 
   private_dns_zone_group {
     name                           = "default"  # Private DNS Zone 연결 이름
-    private_dns_zone_ids            = [azurerm_private_dns_zone.spoke_syn_sql_dns_zone.id]  # Private DNS Zone ID
+    private_dns_zone_ids            = [var.network.private_dns.syn_sql.id]  # Private DNS Zone ID
   }
 }
 
@@ -189,28 +116,6 @@ resource "azurerm_synapse_private_link_hub" "hub_plh_c01" {
   name                = "pnphubplhc01"  # Private Link Hub 이름
   resource_group_name = var.resource_group.hub_rg.name  # 리소스 그룹 이름
   location            = var.com_var.location  # 리소스 그룹 위치
-}
-
-# Private DNS Zone 정의
-resource "azurerm_private_dns_zone" "hub_plh_private_dns_zone" {
-  name                = "privatelink.azuresynapse.net"  # Private DNS Zone 이름
-  resource_group_name = var.resource_group.hub_rg.name  # 리소스 그룹 이름
-}
-
-# Private DNS Zone과 가상 네트워크 링크 설정
-resource "azurerm_private_dns_zone_virtual_network_link" "hub_plh_c01_private_dns_zone_link_hub" {
-  name                  = "link_hub"                        # 링크 이름
-  resource_group_name   = var.resource_group.hub_rg.name   # 리소스 그룹 이름
-  private_dns_zone_name = azurerm_private_dns_zone.hub_plh_private_dns_zone.name  # Private DNS Zone 이름
-  virtual_network_id    = var.network.hub_vnet.id # 가상 네트워크 ID
-}
-
-# Private DNS Zone과 가상 네트워크 링크 설정
-resource "azurerm_private_dns_zone_virtual_network_link" "hub_plh_c01_private_dns_zone_link_spoke" {
-  name                  = "link_spoke"                        # 링크 이름
-  resource_group_name   = var.resource_group.hub_rg.name   # 리소스 그룹 이름
-  private_dns_zone_name = azurerm_private_dns_zone.hub_plh_private_dns_zone.name  # Private DNS Zone 이름
-  virtual_network_id    = var.network.spoke_vnet.id # 가상 네트워크 ID
 }
 
 # Synapse Private Link Web Private Endpoint 생성
@@ -230,9 +135,8 @@ resource "azurerm_private_endpoint" "hub_plh_web_pep" {
 
   private_dns_zone_group {
     name                           = "default"  # Private DNS Zone 연결 이름
-    private_dns_zone_ids            = [azurerm_private_dns_zone.hub_plh_private_dns_zone.id]  # Private DNS Zone ID
+    private_dns_zone_ids            = [var.network.private_dns.plh.id]  # Private DNS Zone ID
   }
-  
 }
 
 # Dedicated SQL Pool 생성

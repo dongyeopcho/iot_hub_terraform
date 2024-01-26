@@ -168,7 +168,7 @@ resource "azurerm_subnet" "spoke_adb_backend_private_subnet" {
   }
 }
 
-# Azure Databricks Hub Private Endpoint 용도의 Subnet 생성
+# Azure Databricks Spoke Private Endpoint 용도의 Subnet 생성
 resource "azurerm_subnet" "spoke_adb_pep_subnet" {
   name                 = "${var.com_var.conf.project_name}-spoke-adb-pep-subnet" # 서브넷 이름
   resource_group_name  = var.resource_group.spoke_rg.name # 서브넷이 속한 리소스 그룹 이름
@@ -177,19 +177,14 @@ resource "azurerm_subnet" "spoke_adb_pep_subnet" {
   depends_on = [ azurerm_virtual_network.spoke_vnet ]
 }
 
-# # Azure Backend 용도의 Public Subnet의 Network Security Group 생성
-# resource "azurerm_network_security_group" "spoke_adb_backend_public_nsg" {
-#   name = "pnp-spoke-adb-backend-public-nsg"
-#   location = var.com_var.location
-#   resource_group_name = var.resource_group.spoke_rg.name
-# }
-
-# # Azure Backend 용도의 Private Subnet의 Network Security Group 생성
-# resource "azurerm_network_security_group" "spoke_adb_backend_private_nsg" {
-#   name = "pnp-spoke-adb-backend-private-nsg"
-#   location = var.com_var.location
-#   resource_group_name = var.resource_group.spoke_rg.name
-# }
+# Azure SQL Database Spoke Private Endpoint 용도의 Subnet 생성
+resource "azurerm_subnet" "spoke_sql_pep_subnet" {
+  name                 = "${var.com_var.conf.project_name}-spoke-sql-pep-subnet" # 서브넷 이름
+  resource_group_name  = var.resource_group.spoke_rg.name # 서브넷이 속한 리소스 그룹 이름
+  virtual_network_name = azurerm_virtual_network.spoke_vnet.name # 서브넷이 속한 가상 네트워크 이름
+  address_prefixes     = ["10.1.6.0/24"] # 서브넷 주소 공간
+  depends_on = [ azurerm_virtual_network.spoke_vnet ]
+}
 
 # Azure Backend 용도의 Network Security Group 생성
 resource "azurerm_network_security_group" "spoke_adb_backend_nsg" {
@@ -232,4 +227,130 @@ resource "azurerm_virtual_network_peering" "peer_spoke_to_hub" {
   allow_gateway_transit        = true
   use_remote_gateways          = false
   allow_virtual_network_access = true
+}
+
+# Private DNS Zone 생성
+
+# IoT Hub Private DNS Zone 정의
+resource "azurerm_private_dns_zone" "iothub_private_dns_zone" {
+  name                = "privatelink.azure-devices.net"  # Private DNS Zone 이름
+  resource_group_name = var.resource_group.hub_rg.name  # 리소스 그룹 이름
+}
+
+# ServiceBus Private DNS Zone 정의
+resource "azurerm_private_dns_zone" "servicebus_private_dns_zone" {
+  name                = "privatelink.servicebus.windows.net"  # Private DNS Zone 이름
+  resource_group_name = var.resource_group.hub_rg.name  # 리소스 그룹 이름
+}
+
+# IoT Hub Private DNS Zone과 가상 네트워크 링크 설정
+resource "azurerm_private_dns_zone_virtual_network_link" "iothub_private_dns_zone_link_hub" {
+  name                  = "link_hub"                        # 링크 이름
+  resource_group_name   = var.resource_group.hub_rg.name   # 리소스 그룹 이름
+  private_dns_zone_name = azurerm_private_dns_zone.iothub_private_dns_zone.name  # Private DNS Zone 이름
+  virtual_network_id    = azurerm_virtual_network.hub_vnet.id # 가상 네트워크 ID
+}
+
+# Service Bus Private DNS Zone과 가상 네트워크 링크 설정
+resource "azurerm_private_dns_zone_virtual_network_link" "servicebus_private_dns_zone_link_hub" {
+  name                  = "link_hub" # 링크 이름
+  resource_group_name   = var.resource_group.hub_rg.name # 리소스 그룹 이름
+  private_dns_zone_name = azurerm_private_dns_zone.servicebus_private_dns_zone.name  # Private DNS Zone 이름
+  virtual_network_id    = azurerm_virtual_network.hub_vnet.id # 가상 네트워크 ID
+}
+
+# Service Bus Private DNS Zone과 가상 네트워크 링크 설정
+resource "azurerm_private_dns_zone_virtual_network_link" "servicebus_private_dns_zone_link_spoke" {
+  name                  = "link_spoke" # 링크 이름
+  resource_group_name   = var.resource_group.hub_rg.name # 리소스 그룹 이름
+  private_dns_zone_name = azurerm_private_dns_zone.servicebus_private_dns_zone.name  # Private DNS Zone 이름
+  virtual_network_id    = azurerm_virtual_network.spoke_vnet.id # 가상 네트워크 ID
+}
+
+# SQL Private DNS Zone 정의
+resource "azurerm_private_dns_zone" "sql_private_dns_zone" {
+  name                = "privatelink.database.windows.net"  # Private DNS Zone 이름
+  resource_group_name = var.resource_group.spoke_rg.name  # 리소스 그룹 이름
+}
+
+# Private DNS Zone과 가상 네트워크 링크 설정
+resource "azurerm_private_dns_zone_virtual_network_link" "sql_private_dns_zone_link_hub" {
+  name                  = "link_hub" # 링크 이름
+  resource_group_name   = var.resource_group.spoke_rg.name # 리소스 그룹 이름
+  private_dns_zone_name = azurerm_private_dns_zone.sql_private_dns_zone.name  # Private DNS Zone 이름
+  virtual_network_id    = azurerm_virtual_network.hub_vnet.id # 가상 네트워크 ID
+}
+
+# Private DNS Zone과 가상 네트워크 링크 설정
+resource "azurerm_private_dns_zone_virtual_network_link" "sql_private_dns_zone_link_spoke" {
+  name                  = "link_spoke" # 링크 이름
+  resource_group_name   = var.resource_group.spoke_rg.name # 리소스 그룹 이름
+  private_dns_zone_name = azurerm_private_dns_zone.sql_private_dns_zone.name  # Private DNS Zone 이름
+  virtual_network_id    = azurerm_virtual_network.spoke_vnet.id # 가상 네트워크 ID
+}
+
+# Private DNS Zone 정의
+resource "azurerm_private_dns_zone" "spoke_syn_dev_dns_zone" {
+  name                = "privatelink.dev.azuresynapse.net"  # Private DNS Zone 이름
+  resource_group_name = var.resource_group.spoke_rg.name  # 리소스 그룹 이름
+}
+
+# Private DNS Zone과 가상 네트워크 링크 설정
+resource "azurerm_private_dns_zone_virtual_network_link" "spoke_syn_dev_dns_zone_link_hub" {
+  name                  = "link_hub"                        # 링크 이름
+  resource_group_name   = var.resource_group.spoke_rg.name   # 리소스 그룹 이름
+  private_dns_zone_name = azurerm_private_dns_zone.spoke_syn_dev_dns_zone.name  # Private DNS Zone 이름
+  virtual_network_id    = azurerm_virtual_network.hub_vnet.id # 가상 네트워크 ID
+}
+
+# Private DNS Zone과 가상 네트워크 링크 설정
+resource "azurerm_private_dns_zone_virtual_network_link" "spoke_syn_dev_dns_zone_link_spoke" {
+  name                  = "link_spoke"                        # 링크 이름
+  resource_group_name   = var.resource_group.spoke_rg.name   # 리소스 그룹 이름
+  private_dns_zone_name = azurerm_private_dns_zone.spoke_syn_dev_dns_zone.name  # Private DNS Zone 이름
+  virtual_network_id    = azurerm_virtual_network.spoke_vnet.id # 가상 네트워크 ID
+}
+
+# Private DNS Zone 정의
+resource "azurerm_private_dns_zone" "spoke_syn_sql_dns_zone" {
+  name                = "privatelink.sql.azuresynapse.net"  # Private DNS Zone 이름
+  resource_group_name = var.resource_group.spoke_rg.name  # 리소스 그룹 이름
+}
+
+# Private DNS Zone과 가상 네트워크 링크 설정
+resource "azurerm_private_dns_zone_virtual_network_link" "spoke_syn_sql_dns_zone_link_hub" {
+  name                  = "link_hub"                        # 링크 이름
+  resource_group_name   = var.resource_group.spoke_rg.name   # 리소스 그룹 이름
+  private_dns_zone_name = azurerm_private_dns_zone.spoke_syn_sql_dns_zone.name  # Private DNS Zone 이름
+  virtual_network_id    = azurerm_virtual_network.hub_vnet.id # 가상 네트워크 ID
+}
+
+# Private DNS Zone과 가상 네트워크 링크 설정
+resource "azurerm_private_dns_zone_virtual_network_link" "spoke_syn_sql_dns_zone_link_spoke" {
+  name                  = "link_spoke"                        # 링크 이름
+  resource_group_name   = var.resource_group.spoke_rg.name   # 리소스 그룹 이름
+  private_dns_zone_name = azurerm_private_dns_zone.spoke_syn_sql_dns_zone.name  # Private DNS Zone 이름
+  virtual_network_id    = azurerm_virtual_network.spoke_vnet.id # 가상 네트워크 ID
+}
+
+# Private DNS Zone 정의
+resource "azurerm_private_dns_zone" "hub_plh_private_dns_zone" {
+  name                = "privatelink.azuresynapse.net"  # Private DNS Zone 이름
+  resource_group_name = var.resource_group.hub_rg.name  # 리소스 그룹 이름
+}
+
+# Private DNS Zone과 가상 네트워크 링크 설정
+resource "azurerm_private_dns_zone_virtual_network_link" "hub_plh_private_dns_zone_link_hub" {
+  name                  = "link_hub"                        # 링크 이름
+  resource_group_name   = var.resource_group.hub_rg.name   # 리소스 그룹 이름
+  private_dns_zone_name = azurerm_private_dns_zone.hub_plh_private_dns_zone.name  # Private DNS Zone 이름
+  virtual_network_id    = azurerm_virtual_network.hub_vnet.id # 가상 네트워크 ID
+}
+
+# Private DNS Zone과 가상 네트워크 링크 설정
+resource "azurerm_private_dns_zone_virtual_network_link" "hub_plh_private_dns_zone_link_spoke" {
+  name                  = "link_spoke"                        # 링크 이름
+  resource_group_name   = var.resource_group.hub_rg.name   # 리소스 그룹 이름
+  private_dns_zone_name = azurerm_private_dns_zone.hub_plh_private_dns_zone.name  # Private DNS Zone 이름
+  virtual_network_id    = azurerm_virtual_network.spoke_vnet.id # 가상 네트워크 ID
 }

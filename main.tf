@@ -7,6 +7,8 @@ variable "create_yn" {
     function = true
     iothub = true
     synapse = true
+    sqldatabase = true
+    eventhub = true
   }
 }
 
@@ -80,6 +82,30 @@ module "databricks_module" {
   resource_group = module.resource_group[0].resource_group_output
   network = module.network[0].network_output
 
+  depends_on = [module.network]
+}
+
+module "sqldatabase_module" {  
+  source                    = "./modules/sqldatabase"       # 모듈 소스 경로
+  count = var.create_yn.sqldatabase ? 1 : 0
+  
+  com_var = var.com_var
+  common_tags = local.common_tags
+  resource_group = module.resource_group[0].resource_group_output
+  network = module.network[0].network_output
+
+  depends_on = [module.network]
+}
+
+module "eventhub_module" {  
+  source                    = "./modules/eventhub"       # 모듈 소스 경로
+  count = var.create_yn.eventhub ? 1 : 0
+  
+  com_var = var.com_var
+  resource_group = module.resource_group[0].resource_group_output
+  network = module.network[0].network_output
+  common_tags = local.common_tags
+  
   depends_on = [module.network]
 }
 

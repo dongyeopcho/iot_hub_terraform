@@ -33,33 +33,6 @@ resource "azurerm_role_assignment" "example" {
   principal_id         = azurerm_iothub.data_iot_c01.identity[0].principal_id
 }
 
-# Private DNS Zone 정의
-resource "azurerm_private_dns_zone" "iothub_private_dns_zone" {
-  name                = "privatelink.azure-devices.net"  # Private DNS Zone 이름
-  resource_group_name = var.resource_group.hub_rg.name  # 리소스 그룹 이름
-}
-
-# Private DNS Zone과 가상 네트워크 링크 설정
-resource "azurerm_private_dns_zone_virtual_network_link" "iothub_private_dns_zone_link_hub" {
-  name                  = "link_hub"                        # 링크 이름
-  resource_group_name   = var.resource_group.hub_rg.name   # 리소스 그룹 이름
-  private_dns_zone_name = azurerm_private_dns_zone.iothub_private_dns_zone.name  # Private DNS Zone 이름
-  virtual_network_id    = var.network.hub_vnet.id # 가상 네트워크 ID
-}
-
-# Private DNS Zone 정의
-resource "azurerm_private_dns_zone" "iothub_servicebus_private_dns_zone" {
-  name                = "privatelink.servicebus.windows.net"  # Private DNS Zone 이름
-  resource_group_name = var.resource_group.hub_rg.name  # 리소스 그룹 이름
-}
-
-# Private DNS Zone과 가상 네트워크 링크 설정
-resource "azurerm_private_dns_zone_virtual_network_link" "iothub_servicebus_private_dns_zone_link_hub" {
-  name                  = "link_hub" # 링크 이름
-  resource_group_name   = var.resource_group.hub_rg.name # 리소스 그룹 이름
-  private_dns_zone_name = azurerm_private_dns_zone.iothub_servicebus_private_dns_zone.name  # Private DNS Zone 이름
-  virtual_network_id    = var.network.hub_vnet.id # 가상 네트워크 ID
-}
 
 # IoT Hub Private Endpoint 생성
 resource "azurerm_private_endpoint" "data_iot_c01_pep" {
@@ -78,7 +51,7 @@ resource "azurerm_private_endpoint" "data_iot_c01_pep" {
 
   private_dns_zone_group {
     name                           = "default"  # Private DNS Zone 연결 이름
-    private_dns_zone_ids            = [azurerm_private_dns_zone.iothub_private_dns_zone.id, azurerm_private_dns_zone.iothub_servicebus_private_dns_zone.id]  # Private DNS Zone ID
+    private_dns_zone_ids            = [var.network.private_dns.iothub.id, var.network.private_dns.servicebus.id]  # Private DNS Zone ID
   }
 }
 
